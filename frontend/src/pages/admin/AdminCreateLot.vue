@@ -4,7 +4,7 @@
 
     <form @submit.prevent="create_parking_lot" class="space-y-4">
       <div>
-        <label class="block mb-1 font-semibold">Name:</label>
+        <label class="block mb-1 font-semibold">Prime Location:</label>
         <input v-model="new_ParkingLot.name" required class="border p-2 w-full rounded" />
       </div>
 

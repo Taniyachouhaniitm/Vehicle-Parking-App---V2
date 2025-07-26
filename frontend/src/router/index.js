@@ -9,6 +9,8 @@ import AllUsers from '../pages/admin/AllUsers.vue'
 import ParkingSpots from '../pages/admin/ParkingSpots.vue'
 import AvailableParkingLots from '../pages/user/AvailableParkingLots.vue'
 import AdminCreateLot from '../pages/admin/AdminCreateLot.vue'
+import AllReservations from '../pages/admin/AllReservations.vue'
+import MyReservations from '../pages/user/MyReservations.vue'
 
 const routes = [
   { path: '/', redirect: '/home' },
@@ -20,8 +22,9 @@ const routes = [
   { path: '/admin/users', component: AllUsers },
   { path: '/admin/parking_spots', component: ParkingSpots },
   { path: '/user/available-lots', component: AvailableParkingLots },
-  { path: '/admin/parking_lots', component: AdminCreateLot }
-
+  { path: '/admin/parking_lots', component: AdminCreateLot },
+  { path: '/admin/reservations', component: AllReservations },
+  { path: '/user/reservations', component: MyReservations }
 ]
 
 const router = createRouter({

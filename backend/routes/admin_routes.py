@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required
-from models import User, ParkingSpot, db, ParkingLot
+from models import User, ParkingSpot, db, ParkingLot, Reservation
 from flask_jwt_extended import get_jwt_identity
 
 
@@ -108,3 +108,28 @@ def delete_parking_spot(spot_id):
     db.session.commit()
 
     return jsonify({'message': 'Parking spot deleted successfully'}), 200
+
+
+@admin_bp.route('/reservations', methods=['GET'])
+@jwt_required()  
+def view_reservations():
+    try:
+        reservations = Reservation.query.all()
+        data = []
+
+        for r in reservations:
+            data.append({
+                'id': r.id,
+                'user_id': r.user_id,
+                'spot_id': r.spot_id,
+                'parking_timestamp': r.parking_timestamp.strftime("%Y-%m-%d %H:%M:%S") if r.parking_timestamp else None,
+                'leaving_timestamp': r.leaving_timestamp.strftime("%Y-%m-%d %H:%M:%S") if r.leaving_timestamp else None,
+                'parking_cost': r.parking_cost
+            })
+
+        return jsonify({'reservations': data}), 200
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'msg': f'Server error: {str(e)}'}), 500

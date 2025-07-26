@@ -37,6 +37,7 @@ class ParkingLot(db.Model):
     address = db.Column(db.String(200), nullable=False)
     pin_code = db.Column(db.String(6), nullable=False)
     number_of_spots = db.Column(db.Integer, nullable=False)
+    reserved_spots = db.Column(db.Integer, default=0)
     created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
 
     parking_spots = db.relationship('ParkingSpot', backref='lot', lazy=True)

@@ -18,7 +18,7 @@ def create_app():
     # Initialize extensions
     db.init_app(app)
     jwt = JWTManager(app)
-    CORS(app)
+    CORS(app, supports_credentials=True)
 
     # Initialize Celery
     celery = Celery(app.import_name, broker=app.config['CELERY_BROKER_URL'])
