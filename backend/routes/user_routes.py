@@ -107,26 +107,33 @@ def user_reservations():
 def release_reservation(reservation_id):
     try:
         user_id = get_jwt_identity()
-        reservation = Reservation.query.get(reservation_id)
 
+        if not user_id:
+            return jsonify({'msg': 'Unauthorized'}), 401
+
+        reservation = Reservation.query.get(reservation_id)
         if not reservation:
             return jsonify({'msg': 'Reservation not found'}), 404
 
+        
         if reservation.leaving_timestamp:
             return jsonify({'msg': 'Already released'}), 400
 
-        # Set leaving timestamp
+        if not reservation.parking_timestamp:
+            return jsonify({'msg': 'Missing parking timestamp'}), 500
+
+        # Release reservation
         reservation.leaving_timestamp = datetime.now()
 
-        # Calculate duration and cost
+        # Calculate parking duration and cost
         duration_hours = (reservation.leaving_timestamp - reservation.parking_timestamp).total_seconds() / 3600
         rate_per_hour = 50
         reservation.parking_cost = round(duration_hours * rate_per_hour, 2)
 
-        # Update the spot
+        # Mark parking spot as available
         spot = ParkingSpot.query.get(reservation.spot_id)
         if spot:
-            spot.status = 'O'
+            spot.status = 'A'  
 
         db.session.commit()
         return jsonify({'msg': 'Reservation released successfully'}), 200

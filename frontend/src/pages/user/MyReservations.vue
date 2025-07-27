@@ -75,15 +75,14 @@ export default {
         const data = await response.json();
 
         if (response.ok) {
-        alert(data.msg || 'Reservation released successfully');
-        this.loadMyReservations(); // or however you refresh your list
+            alert("Released successfully!");
+            this.loadReservations();
         } else {
-        alert(data.msg || 'Failed to release reservation');
+            alert("Something went wrong");
         }
 
     } catch (error) {
         console.error('Release failed:', error);
-        alert('Something went wrong!');
       }
     }
   },
