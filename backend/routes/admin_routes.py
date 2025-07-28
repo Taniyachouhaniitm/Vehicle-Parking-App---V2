@@ -2,6 +2,9 @@ from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required
 from models import User, ParkingSpot, db, ParkingLot, Reservation
 from flask_jwt_extended import get_jwt_identity
+from datetime import datetime, timedelta
+from sqlalchemy import func, cast
+from sqlalchemy.types import Date
 
 
 admin_bp = Blueprint('admin', __name__)
@@ -133,3 +136,46 @@ def view_reservations():
         import traceback
         traceback.print_exc()
         return jsonify({'msg': f'Server error: {str(e)}'}), 500
+
+
+@admin_bp.route('/analytics', methods=['GET'])
+@jwt_required()
+def get_analytics():
+    current_user_id = get_jwt_identity()
+    user = User.query.get(current_user_id)
+
+    if not user or user.role.name != 'admin':
+        return jsonify({'msg': 'Unauthorized'}), 403
+
+    try:
+        # Total Revenue (handling NULL)
+        total_revenue = db.session.query(
+            db.func.coalesce(db.func.sum(Reservation.parking_cost), 0)
+        ).scalar()
+
+        # Total Reservations
+        total_reservations = db.session.query(Reservation).count()
+
+        # Total Parking Lots
+        total_lots = db.session.query(ParkingLot).count()
+
+        # Revenue per Lot
+        revenue_per_lot = db.session.query(
+            ParkingLot.prime_location_name.label("location"),
+            db.func.coalesce(db.func.sum(Reservation.parking_cost), 0).label("revenue")
+        ).join(ParkingSpot, ParkingSpot.lot_id == ParkingLot.id) \
+         .join(Reservation, Reservation.spot_id == ParkingSpot.id) \
+         .group_by(ParkingLot.prime_location_name).all()
+
+        revenue_data = [{'location': lot, 'revenue': round(revenue, 2)} for lot, revenue in revenue_per_lot]
+
+        return jsonify({
+            'total_revenue': round(total_revenue, 2),
+            'total_reservations': total_reservations,
+            'total_lots': total_lots,
+            'revenue_per_lot': revenue_data
+        })
+
+    except Exception as e:
+        print("Analytics fetch error:", e)
+        return jsonify({'msg': 'Analytics loading failed'}), 500

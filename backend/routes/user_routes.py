@@ -8,9 +8,6 @@ import sys
 from datetime import datetime
 
 
-
-
-
 user_bp = Blueprint('user', __name__)
 
 @user_bp.route('/dashboard', methods=['GET'])
@@ -56,7 +53,7 @@ def book_spot(lot_id):
         reservation = Reservation(
             user_id=user_id,
             spot_id=available_spot.id,
-            parking_timestamp=datetime.utcnow()
+            parking_timestamp=datetime.now()
         )
 
         available_spot.status = 'O'
@@ -127,8 +124,13 @@ def release_reservation(reservation_id):
 
         # Calculate parking duration and cost
         duration_hours = (reservation.leaving_timestamp - reservation.parking_timestamp).total_seconds() / 3600
-        rate_per_hour = 50
+        spot = ParkingSpot.query.get(reservation.spot_id)
+        if not spot or not spot.lot:
+            return jsonify({'msg': 'Parking lot not found for the spot'}), 404
+
+        rate_per_hour = spot.lot.price  # get dynamic price from the lot
         reservation.parking_cost = round(duration_hours * rate_per_hour, 2)
+
 
         # Mark parking spot as available
         spot = ParkingSpot.query.get(reservation.spot_id)
@@ -142,3 +144,5 @@ def release_reservation(reservation_id):
         import traceback
         traceback.print_exc()
         return jsonify({'msg': f'Server error: {str(e)}'}), 500
+    
+

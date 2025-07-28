@@ -11,3 +11,8 @@ class Config:
     MAIL_USE_TLS = True
     MAIL_USERNAME = 'youremail@gmail.com'
     MAIL_PASSWORD = 'yourpassword'
+    CACHE_TYPE = "RedisCache"
+    CACHE_REDIS_HOST = "localhost"
+    CACHE_REDIS_PORT = 6379
+    CACHE_REDIS_DB = 0
+    CACHE_DEFAULT_TIMEOUT = 300

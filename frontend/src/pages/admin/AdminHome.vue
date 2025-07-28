@@ -33,6 +33,10 @@ function logout() {
             View Reservations
           </router-link>
 
+          <router-link to="/admin/analytics" class="list-group-item list-group-item-action">
+            View Statistics
+          </router-link>
+
           <button class="list-group-item list-group-item-action text-danger" @click="logout">
             Logout
           </button>
