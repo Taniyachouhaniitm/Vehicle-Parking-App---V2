@@ -1,27 +1,31 @@
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
 from celery import Celery
 from werkzeug.security import generate_password_hash
+from extensions import db, mail, cache
 
 from config import Config  
-from models import db, Role, User
+from models import Role, User
 from routes.auth_routes import auth_bp
 from routes.admin_routes import admin_bp
 from routes.user_routes import user_bp
+
 
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
 
-    
+
     db.init_app(app)
+    mail.init_app(app)
     jwt = JWTManager(app)
     CORS(app, supports_credentials=True)
+    cache.init_app(app)
 
   
-    celery = Celery(app.import_name, broker=app.config['CELERY_BROKER_URL'])
+    celery = Celery(app.import_name, broker=app.config.get('CELERY_BROKER_URL'),
+    backend=app.config.get('CELERY_RESULT_BACKEND'))
     celery.conf.update(app.config)
 
   
@@ -52,10 +56,10 @@ def create_app():
             db.session.add(admin_user)
             db.session.commit()
 
-    return app, celery
+    return app
 
 
-app, celery = create_app()
+app = create_app()
 
 @app.route('/')
 def home():

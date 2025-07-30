@@ -1,11 +1,11 @@
 from flask import Blueprint, jsonify
-from flask_cors import CORS
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from models import ParkingLot, db, Reservation, ParkingSpot
+from models import ParkingLot, Reservation, ParkingSpot, User 
 import datetime
-from flask import request
-import sys
 from datetime import datetime
+from flask import Response
+from extensions import db, cache
+
 
 
 user_bp = Blueprint('user', __name__)
@@ -17,6 +17,7 @@ def user_dashboard():
 
 @user_bp.route('/available-lots', methods=['GET'])
 @jwt_required()
+@cache.cached(timeout=300, key_prefix="available_lots")
 def get_available_parking_lots():
     try:
         available_lots = ParkingLot.query.filter(ParkingLot.number_of_spots > 0).all()
@@ -119,20 +120,19 @@ def release_reservation(reservation_id):
         if not reservation.parking_timestamp:
             return jsonify({'msg': 'Missing parking timestamp'}), 500
 
-        # Release reservation
+      
         reservation.leaving_timestamp = datetime.now()
 
-        # Calculate parking duration and cost
+       
         duration_hours = (reservation.leaving_timestamp - reservation.parking_timestamp).total_seconds() / 3600
         spot = ParkingSpot.query.get(reservation.spot_id)
         if not spot or not spot.lot:
             return jsonify({'msg': 'Parking lot not found for the spot'}), 404
 
-        rate_per_hour = spot.lot.price  # get dynamic price from the lot
+        rate_per_hour = spot.lot.price  
         reservation.parking_cost = round(duration_hours * rate_per_hour, 2)
 
 
-        # Mark parking spot as available
         spot = ParkingSpot.query.get(reservation.spot_id)
         if spot:
             spot.status = 'A'  
@@ -146,3 +146,67 @@ def release_reservation(reservation_id):
         return jsonify({'msg': f'Server error: {str(e)}'}), 500
     
 
+from models import User  
+@user_bp.route('/export-csv', methods=['POST'])
+@jwt_required()
+def export_csv():
+    try:
+        user_id = get_jwt_identity()  
+        user = User.query.get(int(user_id))
+
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+
+        user_email = user.email
+        print(f"[INFO] CSV export requested by user: {user_email}")
+        
+        from tasks.csv_tasks import export_reservations_to_csv
+        export_reservations_to_csv.delay(user_email)
+
+        return jsonify({'message': 'CSV export task has been scheduled. Please check your email.'}), 202
+
+    except Exception as e:
+        print("[ERROR] CSV Export Error:", str(e))
+        return jsonify({'error': 'Failed to schedule CSV export task'}), 500
+
+
+@user_bp.route('/monthly-report', methods=['GET'])
+@jwt_required()
+def download_monthly_report():
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+
+    start_of_month = datetime.today().replace(day=1)
+    reservations = Reservation.query.filter(
+        Reservation.user_id == user_id,
+        Reservation.parking_timestamp >= start_of_month
+    ).all()
+
+    total_cost = sum(r.parking_cost or 0 for r in reservations)
+    report_html = f"""
+    <html>
+    <head><title>Monthly Parking Report</title></head>
+    <body>
+        <h2>Monthly Report for {user.username}</h2>
+        <p>Total Reservations: {len(reservations)}</p>
+        <p>Total Cost: ₹{total_cost:.2f}</p>
+        <table border="1">
+            <tr>
+                <th>ID</th><th>Lot</th><th>Spot</th><th>Start</th><th>End</th><th>Cost</th>
+            </tr>
+    """
+    for r in reservations:
+        report_html += f"""
+        <tr>
+            <td>{r.id}</td>
+            <td>{r.spot.lot.prime_location_name}</td>
+            <td>{r.spot.spot_number}</td>
+            <td>{r.parking_timestamp}</td>
+            <td>{r.leaving_timestamp or 'Ongoing'}</td>
+            <td>{r.parking_cost or 'Pending'}</td>
+        </tr>
+        """
+    report_html += "</table></body></html>"
+
+    return Response(report_html, mimetype="text/html",
+                    headers={"Content-Disposition": "attachment;filename=monthly_report.html"})

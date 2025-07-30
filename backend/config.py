@@ -3,16 +3,22 @@ class Config:
     SQLALCHEMY_DATABASE_URI = 'sqlite:///parking.db'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     JWT_SECRET_KEY = 'your-jwt-key'
-    CELERY_BROKER_URL = 'redis://localhost:6379/0'
-    CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
-    MAIL_DEFAULT_SENDER = 'youremail@gmail.com'
+
+    CELERY_BROKER_URL = "redis://localhost:6379/0"
+    CELERY_RESULT_BACKEND = "redis://localhost:6379/0"
+
+    MAIL_DEFAULT_SENDER = 'tanu99999454@gmail.com'
+    MAIL_PORT = 465
+    MAIL_USE_TLS = False
+    MAIL_USE_SSL = True
+    MAIL_USERNAME = "tanu99999454@gmail.com"
+    MAIL_PASSWORD = 'qtge ooqe weax vkrn'  
     MAIL_SERVER = 'smtp.gmail.com'
-    MAIL_PORT = 587
-    MAIL_USE_TLS = True
-    MAIL_USERNAME = 'youremail@gmail.com'
-    MAIL_PASSWORD = 'yourpassword'
+
     CACHE_TYPE = "RedisCache"
     CACHE_REDIS_HOST = "localhost"
     CACHE_REDIS_PORT = 6379
     CACHE_REDIS_DB = 0
     CACHE_DEFAULT_TIMEOUT = 300
+
+    SERVER_NAME = '127.0.0.1:5000'

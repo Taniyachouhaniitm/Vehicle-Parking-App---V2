@@ -1,27 +1,23 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required
-from models import User, ParkingSpot, db, ParkingLot, Reservation
+from models import User, ParkingSpot, ParkingLot, Reservation
 from flask_jwt_extended import get_jwt_identity
-from datetime import datetime, timedelta
-from sqlalchemy import func, cast
-from sqlalchemy.types import Date
+from extensions import db
 
 
 admin_bp = Blueprint('admin', __name__)
 
-# Admin Dashboard
+
 @admin_bp.route('/dashboard', methods=['GET'])
 def dashboard():
     return jsonify({"msg": "Welcome to the admin dashboard!"})
 
 
-# All Users
 @admin_bp.route('/users', methods=['GET'])
 @jwt_required()
 def get_all_users():
     current_user_id = get_jwt_identity()
-    # Optionally verify admin user with ID
-
+    
     users = User.query.all()
     user_list = [{
         "id": u.id,
@@ -111,6 +107,23 @@ def delete_parking_spot(spot_id):
     db.session.commit()
 
     return jsonify({'message': 'Parking spot deleted successfully'}), 200
+
+
+@admin_bp.route('/parking_spots/<int:spot_id>', methods=['PUT'])
+@jwt_required()
+def update_parking_spot(spot_id):
+    data = request.get_json()
+    spot = ParkingSpot.query.get(spot_id)
+
+    if not spot:
+        return jsonify({'message': 'Parking spot not found'}), 404
+
+    spot.spot_number = data.get('spot_number', spot.spot_number)
+    spot.status = data.get('status', spot.status)
+
+    db.session.commit()
+
+    return jsonify({'message': 'Parking spot updated successfully'}), 200
 
 
 @admin_bp.route('/reservations', methods=['GET'])
