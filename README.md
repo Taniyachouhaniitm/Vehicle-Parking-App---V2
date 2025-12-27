@@ -3,19 +3,19 @@
 A **full-stack Vehicle Parking Management System** built using **Flask (Backend)**, **Vue.js (Frontend)**, and **Celery (Background Jobs)**.  
 The application manages vehicle parking operations, tracks entries and exits, allocates parking slots, and processes asynchronous tasks efficiently.
 
-🎥 **Project Demo / Walkthrough Video:**  
-https://youtu.be/iZ0koglY6c0
+🎥 **Project Demo / Walkthrough Video**  
+👉 https://youtu.be/iZ0koglY6c0
 
 ---
 
 ## 📌 Project Overview
 
-This project is developed as part of the **MAD-2 milestone** and demonstrates a real-world parking management system using modern full-stack development practices.
+This project was developed as part of the **MAD-2 milestone** and demonstrates a real-world parking management system using modern full-stack development practices.
 
-The system is designed with a clean separation of concerns:
-- **Backend** handles business logic and APIs
-- **Frontend** provides an interactive user interface
-- **Celery** manages background and scheduled tasks
+The system follows a clean separation of concerns:
+- **Backend** – Business logic, database, and REST APIs
+- **Frontend** – Interactive user interface using Vue.js
+- **Celery** – Background and scheduled task processing
 
 ---
 
@@ -25,7 +25,7 @@ The system is designed with a clean separation of concerns:
 - Efficiently allocate and release parking slots  
 - Maintain accurate parking records  
 - Implement asynchronous background processing  
-- Demonstrate scalable full-stack application design  
+- Demonstrate scalable full-stack application architecture  
 
 ---
 
@@ -34,20 +34,20 @@ The system is designed with a clean separation of concerns:
 ### 🚘 Parking Management
 - Vehicle entry registration  
 - Vehicle exit tracking  
-- Parking slot allocation and release  
-- Real-time parking availability monitoring  
+- Automatic parking slot allocation and release  
+- Real-time parking availability tracking  
 
 ### ⚙️ Backend Features
-- RESTful APIs using Flask  
+- RESTful APIs built with Flask  
 - Database models and persistence  
-- Modular application structure  
-- Celery-based background task processing  
+- Modular and scalable application structure  
+- Celery-based background task execution  
 
 ### 🎨 Frontend Features
-- Vue.js single-page application  
+- Vue.js Single Page Application (SPA)  
 - Component-based architecture  
-- Page routing and navigation  
-- Clean and responsive UI  
+- Client-side routing  
+- Clean and responsive user interface  
 
 ---
 
@@ -57,8 +57,8 @@ The system is designed with a clean separation of concerns:
 - Python  
 - Flask  
 - Celery  
-- SQLite / Database (via models)  
-- Redis (as Celery message broker, if configured)
+- SQLite (via Flask models)  
+- Redis (Celery message broker, if configured)
 
 ### Frontend
 - Vue.js  
@@ -66,7 +66,7 @@ The system is designed with a clean separation of concerns:
 - JavaScript  
 - HTML & CSS  
 
-### Tools
+### Tools & Utilities
 - Git & GitHub  
 - Node.js & npm  
 
@@ -74,35 +74,36 @@ The system is designed with a clean separation of concerns:
 
 ## 📂 Project Structure
 
+```text
 Vehicle-Parking-App/
 │
 ├── backend/
-│ ├── app.py # Flask application entry point
-│ ├── celery_app.py # Celery app configuration
-│ ├── celery_worker.py # Celery worker runner
-│ ├── config.py # Application configuration
-│ ├── extensions.py # Flask extensions
-│ ├── models.py # Database models
-│ ├── routes/ # API routes
-│ ├── tasks/ # Celery background tasks
-│ └── init.py
+│   ├── app.py                 # Flask application entry point
+│   ├── celery_app.py          # Celery configuration
+│   ├── celery_worker.py       # Celery worker runner
+│   ├── config.py              # App configuration
+│   ├── extensions.py          # Flask extensions
+│   ├── models.py              # Database models
+│   ├── routes/                # API routes
+│   ├── tasks/                 # Celery background tasks
+│   └── __init__.py
 │
 ├── frontend/
-│ ├── public/
-│ ├── src/
-│ │ ├── assets/
-│ │ ├── components/
-│ │ ├── pages/
-│ │ ├── router/
-│ │ ├── App.vue
-│ │ ├── main.js
-│ │ └── style.css
-│ ├── index.html
-│ ├── package.json
-│ ├── package-lock.json
-│ └── vite.config.js
+│   ├── public/
+│   ├── src/
+│   │   ├── assets/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   ├── router/
+│   │   ├── App.vue
+│   │   ├── main.js
+│   │   └── style.css
+│   ├── index.html
+│   ├── package.json
+│   ├── package-lock.json
+│   └── vite.config.js
 │
-├── instance/ # Instance-specific configuration / database
+├── instance/                  # Instance-specific configs / database
 ├── celerybeat-schedule.dat
 ├── celerybeat-schedule.dir
 ├── celerybeat-schedule.bak
@@ -110,7 +111,6 @@ Vehicle-Parking-App/
 ├── package.json
 ├── package-lock.json
 └── README.md
-
 
 ---
 
